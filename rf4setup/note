@@ -1,0 +1,24 @@
+Timeout for get response
+Sending RF4:  J010 command TEMP--
+Waiting for response...
+Timeout for get response
+RECEIVED :  1
+Traceback (most recent call last):
+  File "rftemp.py", line 87, in <module>
+    programsensor(sys.argv[1], newdeviceid, interval)
+  File "rftemp.py", line 35, in programsensor
+    response = getresponse(newdevid,rf4)
+  File "/home/pi/peprf4/rf4setup/rf4_functions.py", line 54, in getresponse
+    ch = ser.read(12).decode()
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xb7 in position 10: invalid start byte
+:
+
+Waiting for response...
+RECEIVED :  VER9.02
+Sending RF4:  J010 command CYCLE
+Waiting for response...
+RECEIVED :  CYCLE--
+Sending RF4:  J010 command CYCLE
+Waiting for response...
+RECEIVED :  STARTED
+
