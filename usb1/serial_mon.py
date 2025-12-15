@@ -7,16 +7,19 @@ from rflib import rf2serial, fetch_messages, request_reply
 import rflib
 from time import sleep
 import time
-import sys, os
+import os
 
 def inbound_message_processing():
   try:
     while (True):
         sleep(0.2)
-        fetch_messages(1);
+        fetch_messages(0)
         while len(rflib.processing_queue)>0:
             message = rflib.processing_queue.pop(0)
-            print(time.strftime("%c")+" "+message[0]+" "+message[1])
+            addspace = ""
+            if len(message[0]) <= 2:
+                addspace = "  "
+            print(time.strftime("%c")+" "+addspace+message[0]+" "+message[1])
         if rflib.event.is_set():
             break
   except Exception as e:
@@ -28,21 +31,16 @@ def inbound_message_processing():
         exit()
 
 def main():
-  print ("JemRF Serial Monitor 2.3")
+  print ("JemRF Serial Monitor 2.3.2-R4")
   print ("Press ctrl-c to exit")
 
   rflib.init()
   #start serial processing thread
   a=Thread(target=rf2serial, args=())
   a.start()
-
-  smessage = "a01HELLO"
-  request = request_reply("a01HELLO")
-  if (request.rt==1):
-      for x in range(request.num_replies):
-        print(str(request.id[x]) + str(request.message[x]))
-
+  sleep(1)  # wait for serial thread to start
   #now start processing thread
+  print(f'Receiver started {time.strftime("%c")}')
   b=Thread(target=inbound_message_processing, args=())
   b.start()
 
