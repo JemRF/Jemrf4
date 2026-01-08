@@ -158,13 +158,13 @@ def programsensor(devid, newdevid):
     response = request(newdevid, 'TYPE2--', 3)   # change type
     print("RECEIVED : ", response)
     if 'TYPE2' not in response:
-        print('2 INAVLID RESPONSE - ' + response)
+        print('2 INVALID RESPONSE - ' + response)
         exit()
 
     response = request(newdevid, 'RSSION-', 3)   # Get Analog Temp from device
     print("RECEIVED : ", response)
     if 'RSSION' not in response:
-        print('2 INAVLID RESPONSE - ' + response)
+        print('2 INVALID RESPONSE - ' + response)
         exit()
 
     response = request(newdevid, 'VERSION', 3)   # Show FW Version
