@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # Converted to support python 2 or 3
-# Update add error trap, deviceId validatation, RF4 support
+# Update add error trap, deviceId validation, RF4 support
 import sys
 from threading import Thread
 #from bme280 import process_bme_reading
-from rflib import rf2serial, fetch_messages, request_reply
 import rflib
+from rflib import rf2serial, fetch_messages, request_reply
+from rf4_library import verify_deviceid
 from time import sleep
 import time
 
@@ -18,7 +19,7 @@ def main():
       a=Thread(target=rf2serial, args=())
       a.start()
       
-           # Validate device ID
+      # Validate device ID
       try: 
         if (sys.argv[2]=="-V" or sys.argv[2]=="-v"):
           command=sys.argv[1]
@@ -63,7 +64,7 @@ def main():
               command='a'+sys.argv[1]+sys.argv[2].upper()   # Construct command
       except:       
             print("\nERROR: Invalid Command Input.\n")
-            print("rf_config.py Version 4.0")     
+            print("rf_config.py Version 4.1")     
             print("Valid formats: ")
             print("\trf_config deviceID Command")
             print("\tNOTE: Device ID must be two or four characters (0-9, a-z, A-Z).")

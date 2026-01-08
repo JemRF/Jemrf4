@@ -228,7 +228,7 @@ def main():
 
     script_dir = Path(__file__).resolve().parent
 
-    default_sources = ['serial_mon.py', 'rf_config.py', 'bme280.py', 'rflib.py']
+    default_sources = ['serial_mon.py', 'rf_config.py', 'rf4_library.py', 'bme280.py', 'rflib.py']
     sources = args.src if args.src else default_sources
 
     default_dests = [f'usb{i}' for i in range(5)]

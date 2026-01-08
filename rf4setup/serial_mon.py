@@ -49,6 +49,7 @@ def main():
           sleep(1)
       except KeyboardInterrupt:
           rflib.event.set()
+          ser.close()
           break
   print("End of Event")
   print(rflib.event.is_set())
@@ -65,6 +66,7 @@ if __name__ == "__main__":
       print (message)
       print (e)
       rflib.event.set()
+      ser.close()
     finally:
       rflib.event.set()
       exit()

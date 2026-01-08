@@ -3,6 +3,7 @@
 # Updated 7/12/2022
 # Revised 7/19/2023
 # Revised 6/06/2025  RF4 support
+# Revised 1/7/2026
 import serial
 from time import sleep
 import time
@@ -38,6 +39,28 @@ def automation(value, devID):
         timer = 0  # disable the timer
         print("Automation 2 triggered")
 
+def is_raspberry_pi():
+    """
+    Returns True if running on a Raspberry Pi, False otherwise.
+    """
+    import platform
+    try:
+        with open('/proc/cpuinfo', 'r') as cpuinfo:
+            info = cpuinfo.read()
+            if 'Raspberry Pi' in info or 'BCM' in info:
+                return True
+    except Exception:
+        pass
+    # Additional check for platform
+    if platform.system() == 'Linux':
+        try:
+            with open('/etc/os-release', 'r') as f:
+                if 'raspbian' in f.read().lower():
+                    return True
+        except Exception:
+            pass
+    return False
+
 def rf2serial():
     global message_queue
     global transmission_queue
@@ -45,9 +68,13 @@ def rf2serial():
     global event
 
     try:
-        port = '/dev/ttyUSB0'
-        port = '/dev/serial0'
         baud = 9600
+        if is_raspberry_pi():
+            port = '/dev/serial0'       # serial URF port on this computer
+        else:
+            port = 'com7'
+        print(f"Using Port: {port}")
+
         ser = serial.Serial(port=port, baudrate=baud)
         llapMsg = ""
         llapMsgb = bytearray()
@@ -149,7 +176,7 @@ def fetch_messages(remove_dup_ind):  # removed duplicates and converts binary da
         x = 0
         while x < len(temp_queue) - 1:
             if temp_queue[x][0] == temp_queue[x+1][0] and \
-               temp_queue[x][1] == temp_queue[x+1][1]:
+                temp_queue[x][1] == temp_queue[x+1][1]:
                 temp_queue.pop(x)
             else:
                 x = x + 1

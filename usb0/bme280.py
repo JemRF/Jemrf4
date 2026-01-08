@@ -34,6 +34,7 @@ class bme280_class:
       dig_P7 = np.int16((data[19] << 8) + (data[18]))
       dig_P8 = np.int16((data[21] << 8) + (data[20]))
       dig_P9 = np.int16((data[23] << 8) + (data[22]))
+      print("preasure ", dig_P1,' ',dig_P2,' ',dig_P3,' ',dig_P5,' ',dig_P6,' ',dig_P7,' ',dig_P8,' ',dig_P9)
 
       dig_H1 =  np.int8(data[24])
       dig_H2 =  np.int16((data[26] << 8) | data[25])
@@ -41,11 +42,14 @@ class bme280_class:
       dig_H4 =  np.int16((data[28] << 4) | (0x0F & data[29]))
       dig_H5 =  np.int16((data[30] << 4) | ((data[29] >> 4) & 0x0F))
       dig_H6 =  np.int8(data[31])
+      print("hum ", dig_H1,' ',dig_H2,' ',dig_H3,' ',dig_H4,' ', dig_H5,' ',dig_H6)
 
       adc_P = (data[32+0] << 16 | data[32+1] << 8 | data[32+2]) >> 4
+      print(adc_P , data[32+0],data[32+1],data[32+2])
 
       temp_raw = (data[32+3] << 12) | (data[32+4] << 4) | (data[32+5] >> 4)
       hum_raw  = (data[32+6] << 8) | data[32+7]
+      print ("raw ",temp_raw,' - ',hum_raw,' - ',adc_P)
 
       #Temperature calculation
       UT = float(temp_raw)
@@ -101,9 +105,9 @@ class bme280_class:
       self.press = p
       self.temp_rt = 1
 
-      #print time.strftime("%c") + " " + "a"+devid+"TPMA"+str(round(t,2))
-      #print time.strftime("%c") + " " + "a"+devid+"HUM"+str(round(h,2))
-      #print time.strftime("%c") + " " + "a"+devid+"PA"+str(round(p,1))
+#     print( time.strftime("%c") + " " + "a"+dev_id+"TPMA"+str(round(temp,2)))
+#     print( time.strftime("%c") + " " + "a"+dev_id+"HUM"+str(round(h,2)))
+#     print( time.strftime("%c") + " " + "a"+dev_id+"PA"+str(round(p,1)))
 
 def process_bme_reading(bme_message, devid):
   return(bme280_class(bme_message, devid))
