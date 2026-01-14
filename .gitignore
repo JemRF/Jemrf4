@@ -1,0 +1,8 @@
+rf4setup/iotdevid.txt
+rf4setup/nextdevid.txt
+__pycache__/
+usb0/__pycache__/
+usb1/__pycache__/
+usb2/__pycache__/
+usb3/__pycache__/
+usb4/__pycache__/
