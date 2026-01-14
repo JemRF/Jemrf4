@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=My App Terminal
+Exec=/home/pi/autostart/start_appusb2.sh
+X-GNOME-Autostart-enabled=true
+
