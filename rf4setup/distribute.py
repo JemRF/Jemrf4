@@ -6,7 +6,7 @@ the `rf4setup` directory, but resolves sources relative to the script's
 parent directory so it's robust.
 
 Usage:
-  python distribute.py            # actually copy
+  python distribute.py   --clean-backups         # actually copy & remove backups
   python distribute.py --dry-run  # show actions without changing filesystem
 
 Options:
