@@ -288,7 +288,9 @@ def increment_deviceid(deviceid):
     Increments the last 3 characters of a device ID using 0-9, a-z, A-Z.
     Rolls over from 'ZZZ' to '000'.
     """
-    charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    #charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    # 1/13/2026 Changed to uppercase only for RF4 device IDs
+    charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     print("increase device id ",deviceid)
     if len(deviceid) != 3:
         raise ValueError("Device ID must be 3 characters")
