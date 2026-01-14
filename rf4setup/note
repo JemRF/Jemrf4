@@ -7,5 +7,8 @@ rf_config.py is the main configuration script that sets up the RF device
 It takes as arguments the device ID and configuration commands
 serial_mon.py is the serial monitor that displays incoming messages from the RF device
 
+git add --chmod=+x filename.sh
+
+
 
 
