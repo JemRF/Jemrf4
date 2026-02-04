@@ -48,23 +48,57 @@ else:
     port = 'com6'
 
 ser = serial.Serial(port, baud)
-ser.timeout = 0
+ser.timeout = 0.2
+
+def serial_bytes_waiting(serial_port):
+    waiting = getattr(serial_port, "in_waiting", None)
+    if callable(waiting):
+        waiting = waiting()
+    if waiting is None:
+        try:
+            return serial_port.inWaiting()
+        except Exception:
+            return 0
+    return waiting
+
+def read_exact(serial_port, size, timeout_s=1.0):
+    import time
+    data = b""
+    end_time = time.time() + timeout_s
+    while len(data) < size and time.time() < end_time:
+        if not data:
+            first = serial_port.read(1)
+            if not first:
+                sleep(0.01)
+                continue
+            if first not in (b"a", b"b"):
+                continue
+            data += first
+        remaining = size - len(data)
+        if remaining <= 0:
+            break
+        chunk = serial_port.read(remaining)
+        if chunk:
+            data += chunk
+        else:
+            sleep(0.01)
+    return data
 #-----------------
 #
 # Send a request command and wait for response
 #----------------
-def request(device, request, retry, rf4=1):
+def request(device, requestmsg, retry, rf4=1):
     poll = 1
     n = 0
     while poll == 1 and n < retry:
         sleep(n)            # sleep longer each time I don't get a response
         ser.flushInput()    # clear input buffer
         if rf4 == 1:
-            print('Sending RF4:  ' + device + " command " + request[:7])
-            ser.write(('b' + device + request[:7]).encode())  # write as binary
+            print('Sending RF4:  ' + device + " command " + requestmsg[:7])
+            ser.write(('b' + device + requestmsg[:7]).encode())  # write as binary
         else:
-            print('Sending RF2:  ' + device + " command " + request)
-            ser.write(('a' + device + request).encode())
+            print('Sending RF2:  ' + device + " command " + requestmsg)
+            ser.write(('a' + device + requestmsg).encode())
         print("Waiting for response...")
         response = getresponse(device, rf4)
         if len(response) > 1:
@@ -75,7 +109,7 @@ def request(device, request, retry, rf4=1):
             poll = 0
         n += 1
         sleep(0.5)
-    #print('Request got: ' + str(response))
+    #print('response debug: Request got: ' + str(response))
     return response
 
 #----------------
@@ -87,12 +121,17 @@ def getresponse(devid,rf4=1):
     message = '2'
     messagecount = 0
     while timeout > 0:
-        if ser.inWaiting() >= 12:
-            sleep(0.05)
+        #print(f"getresponse debug: Timeout = {timeout}, bytes waiting = {serial_bytes_waiting(ser) }")
+        if serial_bytes_waiting(ser) >= 1 or ser.timeout:
+            sleep(0.02)
             try:
-                ch = ser.read(12).decode()
-                #print("getresponse debug: received message " + ch + " looking for " + devid + " mode " + str(rf4))
-            except:
+                raw = read_exact(ser, 12, timeout_s=0.5)
+                if len(raw) < 12:
+                    timeout -= 1
+                    continue
+                ch = raw.decode(errors="ignore")
+                print("getresponse debug: received message ->" + ch + "<- looking for " + devid + " mode " + str(rf4))
+            except Exception:
                 print("ERROR: Invalid to read response")
                 ch = ''
             if rf4 == 1:
@@ -107,10 +146,13 @@ def getresponse(devid,rf4=1):
                     message = '1'
                     #print("getresponse debug: Not 'b' in response reading next char...")
             else:
+                #print("getresponse debug: Not 'b' in response reading next char...")
+                
                 if ch[0] == 'a':
-                    #print("getresponse debug: a message"+ ch[1:3] + " looking for " + devid )
+                    #print("getresponse debug: a message "+ ch[1:3] + " looking for " + devid )
                     if ch[1:3] == devid:
                         message = ch[0:12]
+                        #print(f"getresponse debug: matched device id {devid} returning message ->" + message + "<-")
                         return message
                     else:
                         message = '0'
@@ -134,13 +176,15 @@ def getstarted(devid, rf4=1):      # wait for the STARTED message from devid
     import time
     t = 1
     start_time = time.time()
+    sendbreak = 0
     while t == 1:
         if time.time() - start_time > 60:
-            print("Timeout waiting for STARTED message.")
+            #print("getstarted debug Timeout waiting for STARTED message.")
             exit()
-        if ser.inWaiting() >= 12:
+        received = getresponse(devid, rf4)
+        if len(received) >= 12:
             try:
-                firstchar = ser.read().decode()
+                firstchar = received[0]
             except:
                 firstchar = ''
             #print("getstarted debug First char:", firstchar)
@@ -148,10 +192,10 @@ def getstarted(devid, rf4=1):      # wait for the STARTED message from devid
                 if firstchar == 'a':
                     message = 'a'
                     sleep(0.1)
-                    next_char = ser.read(2).decode()
+                    next_char = received[1:3]
                     #print("getstarted debug device id:", next_char)
                     if next_char == devid:
-                        gotresponse = ser.read(9).decode()
+                        gotresponse = received[3:10]
                         #print("getstarted debug gotresponse:", gotresponse)
                         if 'STARTED' in gotresponse:
                             t = 0
@@ -159,10 +203,10 @@ def getstarted(devid, rf4=1):      # wait for the STARTED message from devid
                 if firstchar == 'b':
                     message = 'b'
                     sleep(0.1)
-                    next_char = ser.read(4).decode()
+                    next_char = received[1:5]
                     #print("getstarted debug device id:", next_char)
                     if next_char == devid:
-                        gotresponse = ser.read(7).decode()
+                        gotresponse = received[5:12]
                         #print("getstarted debug gotresponse:", gotresponse)
                         if 'STARTED' in gotresponse:
                             t = 0
@@ -170,10 +214,12 @@ def getstarted(devid, rf4=1):      # wait for the STARTED message from devid
         sleep(0.1)
         # Try WAKE every 15 seconds
         elapsed = int(time.time() - start_time)
-        if elapsed % 15 == 0 and elapsed > 0:
-            print("Timeout waiting for STARTED message, try Wake. "+str(elapsed) + " seconds")
-            response = request(devid, 'REBOOT', 1, rf4)
-    print("Got STARTED message received from " + devid)
+        #print(f"getstarted debug elapsed time: {elapsed} seconds {elapsed % 15}")
+        #if elapsed > 15  and elapsed > 0:
+        print("Timeout waiting for STARTED message, try Wake. "+str(elapsed) + " seconds")
+        response = request(devid, 'REBOOT', 1, rf4)
+            
+    #print("Got STARTED message received from " + devid)
     return
 
 #----------------
@@ -185,13 +231,12 @@ def programcloseout(newdevid, rf4=1, relay=0):
     """
 
     if relay == 1:
-        response = request(newdevid, 'RBSON', 3, rf4)   # sleep cycle
-        print("RECEIVED : ", response)
+        response = request(newdevid, 'RBSON', 3, rf4)   # Send update on Button
         if 'RBSON' not in response:
             print('INVALID RESPONSE - ' + response)
             exit()
     else:
-        response = request(newdevid, 'RBSOFF', 3, rf4)   # sleep cycle
+        response = request(newdevid, 'RBSOFF', 3, rf4)   # Don't update on Button
         print("RECEIVED : ", response)
         if 'RBSOFF' not in response:
             print('INVALID RESPONSE - ' + response)

@@ -31,6 +31,7 @@ def programsensor(devid, newdevid, interval):
     sleep(0.5)  # Allow time for device to process the commands
     response = request(newdevid, 'TEMP--', 3, rf4)
     print("RECEIVED : ", response)
+    print("Waiting for Possible second response...")
     response = getresponse(newdevid,rf4)
     print("RECEIVED : ", response)
 
