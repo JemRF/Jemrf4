@@ -131,7 +131,8 @@ def rf2serial():
 
             # Process outgoing messages (RF transmissions)
             if len(transmission_queue) > 0:
-                ser.write(transmission_queue.pop())
+                commandtosend = transmission_queue.pop()
+                ser.write(commandtosend)
             rf_event.clear()
             if event.is_set():
                 break

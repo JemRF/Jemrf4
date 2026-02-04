@@ -71,7 +71,7 @@ def rf2serial():
         baud = 9600
         if is_raspberry_pi():
             port = '/dev/serial0'       # serial URF port on this computer
-            port = '/dev/ttyUSB1'
+            port = '/dev/ttyUSB4'
 
         else:
             port = 'com7'
@@ -131,8 +131,7 @@ def rf2serial():
 
             # Process outgoing messages (RF transmissions)
             if len(transmission_queue) > 0:
-                commandtosend = transmission_queue.pop()
-                ser.write(commandtosend)
+                ser.write(transmission_queue.pop())
             rf_event.clear()
             if event.is_set():
                 break
