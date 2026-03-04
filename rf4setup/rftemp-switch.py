@@ -6,6 +6,9 @@ from time import sleep
 from math import log
 from rf4_functions import *
 
+#-----------------
+# Type 4 - is the sensor type for temp-switch combo or switch only
+# default to RF2
 rf4 = 0
 #-----------------
 def programsensor(devid, newdevid, interval):
@@ -21,13 +24,13 @@ def programsensor(devid, newdevid, interval):
 
     if rf4 == 0:
         print("RF2 protocol detected")
-        programsensorR2(devid, newdevid, interval, rf4, 4)
+        programsensorR2(devid, newdevid, interval, rf4, 4)    
     else:
         print("RF4 protocol detected")
         programsensorR4(devid, newdevid, interval, rf4, 4)
 
     sleep(0.5)  # Allow time for device to process the commands
-    response = request(newdevid, 'TEMP--', 3, rf4)
+    response = request(newdevid, 'TEMPC', 3, rf4)
     print("RECEIVED : ", response)
     print("Waiting for Possible second response...")
     response = getresponse(newdevid, rf4)
@@ -47,7 +50,7 @@ if __name__ == "__main__":
         exit()
 
     if len(sys.argv) < 2:
-        print("Configure RF Temperature - Switch combination Sensor (or swithch only)")
+        print("Configure RF Temperature - Switch combination Sensor (or switch only)")
         helpmessage("rftemp-switch.py")
     if len(sys.argv) < 4:
         interval = 5

@@ -218,6 +218,7 @@ def getstarted(devid, rf4=1):      # wait for the STARTED message from devid
         #if elapsed > 15  and elapsed > 0:
         print("Timeout waiting for STARTED message, try Wake. "+str(elapsed) + " seconds")
         response = request(devid, 'REBOOT', 1, rf4)
+        sleep(1.5) # wait a moment for reboot to take effect before looking for STARTED message again
             
     #print("Got STARTED message received from " + devid)
     return

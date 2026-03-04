@@ -6,6 +6,8 @@ from time import sleep
 from math import log
 from rf4_functions import *
 
+#-----------------
+# Type 4 - is the sensor type for power sensor with temperature option
 rf4 = 0
 #-----------------
 def programsensor(devid, newdevid, interval):
@@ -27,7 +29,7 @@ def programsensor(devid, newdevid, interval):
         programsensorR4(devid, newdevid, interval, rf4, 4)
 
     sleep(0.5)  # Allow time for device to process the commands
-    response = request(newdevid, 'TEMP--', 3, rf4)
+    response = request(newdevid, 'TEMPC', 3, rf4)
     print("RECEIVED : ", response)
     response = getresponse(newdevid, rf4)
     print("RECEIVED : ", response)

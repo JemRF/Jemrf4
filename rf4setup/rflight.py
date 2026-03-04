@@ -8,6 +8,7 @@ from rf4_functions import *
 
 #-----------------
 # default to RF2
+# Type 5 - is the sensor type for light sensor, Analog channel A
 rf4 = 0
 #-----------------
 
@@ -31,7 +32,7 @@ def programsensor(devid, newdevid, interval):
 
     sleep(0.5)  # Allow time for device to process the commands
 
-    response = request(newdevid, 'AANA---', 3, rf4)
+    response = request(newdevid, 'AANA', 3, rf4)
     print("RECEIVED : ", response)
 
     programcloseout(newdevid,rf4,0)

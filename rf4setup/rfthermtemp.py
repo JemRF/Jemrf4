@@ -7,6 +7,7 @@ from math import log
 from rf4_functions import *
 
 #-----------------
+# Type 1 - Thermistor Temperature Sensor Configuration Script
 # default to RF2
 rf4 = 0
 #-----------------
@@ -29,7 +30,7 @@ def programsensor(devid, newdevid, interval):
         programsensorR4(devid, newdevid, interval, rf4, 1)
     
     sleep(0.5)  # Allow time for device to process the commands
-    response = request(newdevid, 'TEMP--', 3, rf4)
+    response = request(newdevid, 'TEMP', 3, rf4)
     print("RECEIVED : ", response)
     print("Waiting for Possible second response...")
     response = getresponse(newdevid,rf4)

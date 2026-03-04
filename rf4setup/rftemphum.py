@@ -8,6 +8,7 @@ from rf4_functions import *
 
 #-----------------
 # default to RF2
+# TYPE 10 - is the sensor type for temp/humidity combo
 rf4 = 0
 #-----------------4
 
@@ -30,7 +31,7 @@ def programsensor(devid, newdevid, interval):
         programsensorR4(devid, newdevid, interval, rf4, 10)    
         
     sleep(0.5)  # Allow time for device to process the commands
-    response = request(newdevid, 'HTU21--', 3, rf4)
+    response = request(newdevid, 'HTU21', 3, rf4)
     print("RECEIVED : ", response)
     response = getresponse(newdevid, rf4)
     print("RECEIVED : ", response)
